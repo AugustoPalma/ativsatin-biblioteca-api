@@ -1,8 +1,6 @@
 const express = require("express");
-const booksRouter = require("./routes/books");
-const usersRouter = require("./routes/users");
-const loansRouter = require("./routes/loans");
-const errorHandler = require("./middleware/errorHandler");
+const ctrl = require("./controllers");
+const { validateBookPayload, validateUserPayload, validateLoanPayload, errorHandler } = require("./middleware");
 
 const app = express();
 app.use(express.json());
@@ -11,9 +9,23 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/books", booksRouter);
-app.use("/users", usersRouter);
-app.use("/loans", loansRouter);
+// Books
+app.get("/books", ctrl.listBooks);
+app.get("/books/:id", ctrl.getBook);
+app.post("/books", validateBookPayload, ctrl.createBook);
+app.put("/books/:id", ctrl.updateBook);
+app.delete("/books/:id", ctrl.deleteBook);
+
+// Users
+app.get("/users", ctrl.listUsers);
+app.get("/users/:id", ctrl.getUser);
+app.post("/users", validateUserPayload, ctrl.createUser);
+app.delete("/users/:id", ctrl.deleteUser);
+
+// Loans
+app.get("/loans", ctrl.listLoans);
+app.post("/loans", validateLoanPayload, ctrl.createLoan);
+app.post("/loans/:id/return", ctrl.returnLoan);
 
 app.use(errorHandler);
 

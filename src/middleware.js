@@ -1,4 +1,4 @@
-const { ValidationError } = require("../utils/errors");
+const { AppError, ValidationError } = require("./db");
 
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
@@ -55,8 +55,18 @@ function validateLoanPayload(req, res, next) {
   next();
 }
 
+function errorHandler(err, req, res, next) {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message });
+  }
+
+  console.error(err);
+  return res.status(500).json({ error: "Erro interno do servidor" });
+}
+
 module.exports = {
   validateBookPayload,
   validateUserPayload,
   validateLoanPayload,
+  errorHandler,
 };
